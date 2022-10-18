@@ -1,20 +1,26 @@
 ﻿using GrainInterfaces;
 using Orleans;
+using Orleans.Runtime;
 
 namespace Grains;
 
 public class CounterGrain : Grain, ICounterGrain
 {
-	private int _count;
+	private readonly IPersistentState<CounterPersistence> _sheepState;
 
-	public Task Increment()
+	public CounterGrain([PersistentState("CounterState", "Basic")]IPersistentState<CounterPersistence> sheepState)
 	{
-		_count++;
-		return Task.CompletedTask;
+		_sheepState = sheepState;
+	}
+
+	public async Task Increment()
+	{
+		_sheepState.State.Counter++;
+		await _sheepState.WriteStateAsync();
 	}
 
 	public Task<int> GetCount()
 	{
-		return Task.FromResult(_count);
+		return Task.FromResult(_sheepState.State.Counter);
 	}
 }

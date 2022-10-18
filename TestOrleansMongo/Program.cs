@@ -1,4 +1,6 @@
-﻿using Orleans.Hosting;
+﻿using Microsoft.Extensions.Options;
+using Orleans.Hosting;
+using Orleans.Providers.MongoDB.Configuration;
 using TestOrleansMongo;
 
 public class Program
@@ -6,7 +8,6 @@ public class Program
 	public static async Task Main()
 	{
 		var startSilo = await StartSilo();
-		Console.ReadKey();
 	}
 
 
@@ -18,10 +19,21 @@ public class Program
 		IHost host = hostBuilder.UseOrleans((a, siloBuilder) =>
 		{
 			siloBuilder.UseLocalhostClustering();
+			siloBuilder.UseMongoDBClient("mongodb+srv://dredstd:RbvEnbZ2Bc6JM8xK@experimental01.eshlc7z.mongodb.net/basic");
+			siloBuilder.AddMongoDBGrainStorage("Basic", ConfigureMongoOptions);
 			siloBuilder.AddStartupTask<TestCounterStartupTask>();
 		}).Build();
 
 		await host.StartAsync();
 		return host;
+	}
+
+	private static void ConfigureMongoOptions(OptionsBuilder<MongoDBGrainStorageOptions> builder)
+	{
+		builder.Configure(options =>
+		{
+			options.DatabaseName = "basic";
+			options.ClientName = "hello";
+		});
 	}
 }

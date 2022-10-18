@@ -15,13 +15,18 @@ public class TestCounterStartupTask : IStartupTask
 
 	public async Task Execute(CancellationToken cancellationToken)
 	{
-		const string counterId = "test_counter_id_0";
-		var counterGrain = _clusterClient.GetGrain<ICounterGrain>(counterId);
-		await counterGrain.Increment();
-		await counterGrain.Increment();
-		await counterGrain.Increment();
-		await counterGrain.Increment();
-		var count = await counterGrain.GetCount();
-		Console.WriteLine($"{counterId} count is {count}");
+		const string counterId0 = "test_counter_id_0";
+		var counterGrain0 = _clusterClient.GetGrain<ICounterGrain>(counterId0);
+		await counterGrain0.Increment();
+		var count0 = await counterGrain0.GetCount();
+
+		const string counterId1 = "test_counter_id_1";
+		var counterGrain1 = _clusterClient.GetGrain<ICounterGrain>(counterId1);
+		await counterGrain1.Increment();
+		var count1 = await counterGrain1.GetCount();
+
+
+		Console.WriteLine($"{counterId0} count is {count0}");
+		Console.WriteLine($"{counterId1} count is {count1}");
 	}
 }
