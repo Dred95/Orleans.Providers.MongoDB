@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -12,43 +11,32 @@ namespace Orleans.Providers.MongoDB.Utils
 	{
 		private const string CollectionFormat = "{0}Set";
 
-		protected static readonly UpdateOptions Upsert = new UpdateOptions { IsUpsert = true };
-		protected static readonly ReplaceOptions UpsertReplace = new ReplaceOptions { IsUpsert = true };
-		protected static readonly SortDefinitionBuilder<TEntity> Sort = Builders<TEntity>.Sort;
+		protected static readonly UpdateOptions Upsert = new() { IsUpsert = true };
+		protected static readonly ReplaceOptions UpsertReplace = new() { IsUpsert = true };
 		protected static readonly UpdateDefinitionBuilder<TEntity> Update = Builders<TEntity>.Update;
 		protected static readonly FilterDefinitionBuilder<TEntity> Filter = Builders<TEntity>.Filter;
-		protected static readonly IndexKeysDefinitionBuilder<TEntity> Index = Builders<TEntity>.IndexKeys;
 		protected static readonly ProjectionDefinitionBuilder<TEntity> Project = Builders<TEntity>.Projection;
 
-		private readonly IMongoDatabase mongoDatabase;
-		private readonly IMongoClient mongoClient;
-		private readonly Lazy<IMongoCollection<TEntity>> mongoCollection;
-		private readonly bool createShardKey;
+		private readonly IMongoDatabase _mongoDatabase;
+		private readonly IMongoClient _mongoClient;
+		private readonly Lazy<IMongoCollection<TEntity>> _mongoCollection;
+		private readonly bool _createShardKey;
 
-		protected IMongoCollection<TEntity> Collection
-		{
-			get { return mongoCollection.Value; }
-		}
+		protected IMongoCollection<TEntity> Collection => _mongoCollection.Value;
 
-		protected IMongoDatabase Database
-		{
-			get { return mongoDatabase; }
-		}
+		protected IMongoDatabase Database => _mongoDatabase;
 
-		public IMongoClient Client
-		{
-			get { return mongoClient; }
-		}
+		public IMongoClient Client => _mongoClient;
 
 		protected CollectionBase(IMongoClient mongoClient, string databaseName,
-			Action<MongoCollectionSettings> collectionConfigurator, bool createShardKey)
+			Action<MongoCollectionSettings>? collectionConfigurator, bool createShardKey)
 		{
-			this.mongoClient = mongoClient;
+			_mongoClient = mongoClient;
 
-			mongoDatabase = mongoClient.GetDatabase(databaseName);
-			mongoCollection = CreateCollection(collectionConfigurator);
+			_mongoDatabase = mongoClient.GetDatabase(databaseName);
+			_mongoCollection = CreateCollection(collectionConfigurator);
 
-			this.createShardKey = createShardKey;
+			_createShardKey = createShardKey;
 		}
 
 		protected virtual MongoCollectionSettings CollectionSettings()
@@ -65,7 +53,8 @@ namespace Orleans.Providers.MongoDB.Utils
 		{
 		}
 
-		private Lazy<IMongoCollection<TEntity>> CreateCollection(Action<MongoCollectionSettings> collectionConfigurator)
+		private Lazy<IMongoCollection<TEntity>> CreateCollection(
+			Action<MongoCollectionSettings>? collectionConfigurator)
 		{
 			return new Lazy<IMongoCollection<TEntity>>(() =>
 			{
@@ -74,20 +63,18 @@ namespace Orleans.Providers.MongoDB.Utils
 					Filter = Builders<BsonDocument>.Filter.Eq("name", CollectionName())
 				};
 
-				if (!mongoDatabase.ListCollectionNames(collectionFilter).Any())
+				if (!_mongoDatabase.ListCollectionNames(collectionFilter).Any())
 				{
-					mongoDatabase.CreateCollection(CollectionName());
+					_mongoDatabase.CreateCollection(CollectionName());
 				}
 
-				var collectionSettings = CollectionSettings() ?? new MongoCollectionSettings();
+				var collectionSettings = CollectionSettings();
 
 				collectionConfigurator?.Invoke(collectionSettings);
 
-				var databaseCollection = mongoDatabase.GetCollection<TEntity>(
-					CollectionName(),
-					collectionSettings);
+				var databaseCollection = _mongoDatabase.GetCollection<TEntity>(CollectionName(), collectionSettings);
 
-				if (this.createShardKey)
+				if (_createShardKey)
 				{
 					try
 					{
@@ -97,7 +84,7 @@ namespace Orleans.Providers.MongoDB.Utils
 							{
 								["_id"] = "hashed"
 							},
-							["shardCollection"] = $"{mongoDatabase.DatabaseNamespace.DatabaseName}.{CollectionName()}"
+							["shardCollection"] = $"{_mongoDatabase.DatabaseNamespace.DatabaseName}.{CollectionName()}"
 						});
 					}
 					catch (MongoException)

@@ -1,12 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestOrleansMongo", "TestOrleansMongo\TestOrleansMongo.csproj", "{84D816F9-560D-46FB-BDC8-D55B33B17499}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrainInterfaces", "GrainInterfaces\GrainInterfaces.csproj", "{42982236-7B4C-4879-942B-2AC5543CE01E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grains", "Grains\Grains.csproj", "{25EAD3B3-99D8-49EF-AD6E-17ECAB47936E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orleans.Providers.MongoDB", "Orleans.Providers.MongoDB\Orleans.Providers.MongoDB.csproj", "{830FE122-EAF1-46B6-8A29-8BA6A90E6F91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMongoProvider", "TestMongoProvider\TestMongoProvider.csproj", "{010B0898-B325-4224-8CD4-B25AEE51EFEF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{F50A8FBC-954C-4AC3-97B7-44D524122CFD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,10 +16,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{84D816F9-560D-46FB-BDC8-D55B33B17499}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{84D816F9-560D-46FB-BDC8-D55B33B17499}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{84D816F9-560D-46FB-BDC8-D55B33B17499}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{84D816F9-560D-46FB-BDC8-D55B33B17499}.Release|Any CPU.Build.0 = Release|Any CPU
 		{42982236-7B4C-4879-942B-2AC5543CE01E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{42982236-7B4C-4879-942B-2AC5543CE01E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42982236-7B4C-4879-942B-2AC5543CE01E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -30,5 +28,14 @@ Global
 		{830FE122-EAF1-46B6-8A29-8BA6A90E6F91}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{830FE122-EAF1-46B6-8A29-8BA6A90E6F91}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{830FE122-EAF1-46B6-8A29-8BA6A90E6F91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{010B0898-B325-4224-8CD4-B25AEE51EFEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{010B0898-B325-4224-8CD4-B25AEE51EFEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{010B0898-B325-4224-8CD4-B25AEE51EFEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{010B0898-B325-4224-8CD4-B25AEE51EFEF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{42982236-7B4C-4879-942B-2AC5543CE01E} = {F50A8FBC-954C-4AC3-97B7-44D524122CFD}
+		{25EAD3B3-99D8-49EF-AD6E-17ECAB47936E} = {F50A8FBC-954C-4AC3-97B7-44D524122CFD}
+		{010B0898-B325-4224-8CD4-B25AEE51EFEF} = {F50A8FBC-954C-4AC3-97B7-44D524122CFD}
 	EndGlobalSection
 EndGlobal

@@ -1,35 +1,41 @@
-﻿using System.Text.Json;
+﻿using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Orleans.Serialization;
+using Orleans.Storage;
 
 namespace Orleans.Providers.MongoDB.StorageProviders.Serializers
 {
 	public class JsonGrainStateSerializer : IGrainStateSerializer
 	{
-		private IServiceProvider _serviceProvider;
+		private readonly JsonSerializerSettings _jsonSettings;
 
-		private readonly JsonSerializerOptions _options = new()
+		public JsonGrainStateSerializer(IOptions<JsonGrainStorageSerializerOptions> options, IServiceProvider services)
 		{
-			IncludeFields = true
-		};
+			_jsonSettings = OrleansJsonSerializer.UpdateSerializerSettings(
+				OrleansJsonSerializer.GetDefaultSerializerSettings(services),
+				options.Value.UseFullAssemblyNames,
+				options.Value.IndentJson,
+				options.Value.TypeNameHandling);
 
-		public JsonGrainStateSerializer(IServiceProvider serviceProvider)
-		{
-			_serviceProvider = serviceProvider;
+			options.Value.ConfigureJsonSerializerSettings?.Invoke(_jsonSettings);
 		}
 
 		public string Serialize<TState>(IGrainState<TState> grainState)
 		{
-			return JsonSerializer.Serialize(grainState.State, _options);
+			var data = JsonConvert.SerializeObject(grainState.State, _jsonSettings);
+			Console.WriteLine(data);
+			return data;
 		}
 
 		public TState Deserialize<TState>(string serialized)
 		{
-			TState? stored = JsonSerializer.Deserialize<TState>(serialized, _options);
-			if (stored != null)
+			TState? deserializeObject = JsonConvert.DeserializeObject<TState>(serialized, _jsonSettings);
+			if (deserializeObject == null)
 			{
-				return stored;
+				throw new InvalidOperationException("Deserialized empty state");
 			}
 
-			throw new Exception("null deserialized");
+			return deserializeObject;
 		}
 	}
 }

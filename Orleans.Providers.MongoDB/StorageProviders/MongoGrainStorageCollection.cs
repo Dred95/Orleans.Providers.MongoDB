@@ -20,7 +20,7 @@ namespace Orleans.Providers.MongoDB.StorageProviders
 			IMongoClient mongoClient,
 			string databaseName,
 			string collectionName,
-			Action<MongoCollectionSettings> collectionConfigurator,
+			Action<MongoCollectionSettings>? collectionConfigurator,
 			bool createShardKey,
 			IGrainStateSerializer serializer,
 			GrainStorageKeyGenerator keyGenerator)

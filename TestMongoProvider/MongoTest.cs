@@ -1,29 +1,32 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Orleans;
 using Orleans.Hosting;
 using Orleans.Providers.MongoDB.Configuration;
 using Orleans.Serialization;
 using Orleans.Storage;
-using TestOrleansMongo;
 
-public class Program
+namespace TestMongoProvider;
+
+public abstract class MongoTest
 {
-	public static async Task Main()
-	{
-		var silo = await StartSilo();
-	}
+	protected IClusterClient ClusterClient { get; private set; } = null!;
+	private IHost _host = null!;
 
-	private static async Task<IHost> StartSilo()
+	[SetUp]
+	public async Task SetupOrleansCluster()
 	{
 		IHostBuilder hostBuilder = Host.CreateDefaultBuilder();
 		hostBuilder.UseConsoleLifetime();
 		hostBuilder.ConfigureLogging(logging => logging.AddConsole());
-		IHost host = hostBuilder.UseOrleans((_, siloBuilder) =>
+		_host = hostBuilder.UseOrleans((_, siloBuilder) =>
 		{
 			siloBuilder.UseLocalhostClustering();
 
 			siloBuilder.UseMongoDBClient(
 				"mongodb+srv://dredstd:RbvEnbZ2Bc6JM8xK@experimental01.eshlc7z.mongodb.net/basic");
-			siloBuilder.AddStartupTask<TestCounterStartupTask>();
 			siloBuilder.Services.AddSerializer(builder =>
 			{
 				builder.AddJsonSerializer(configureOptions:
@@ -41,9 +44,11 @@ public class Program
 			siloBuilder.AddMongoDBGrainStorage("Basic", ConfigureMongoOptions);
 		}).Build();
 
-		await host.StartAsync();
-		return host;
+		await _host.StartAsync();
+
+		ClusterClient = _host.Services.GetService<IClusterClient>()!;
 	}
+
 
 	private static void ConfigureMongoOptions(OptionsBuilder<MongoDBGrainStorageOptions> builder)
 	{
@@ -53,4 +58,6 @@ public class Program
 			options.ClientName = "hello";
 		});
 	}
+
+	protected abstract void ConfigureServices(IServiceCollection serviceCollection);
 }

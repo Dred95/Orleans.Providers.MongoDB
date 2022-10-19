@@ -6,21 +6,36 @@ namespace Grains;
 
 public class CounterGrain : Grain, ICounterGrain
 {
-	private readonly IPersistentState<CounterPersistence> _sheepState;
+	private readonly IPersistentState<CounterPersistence> _counterState;
+	private readonly IPersistentState<CounterSecondPersistence> _counterSecondState;
 
-	public CounterGrain([PersistentState("CounterState", "Basic")]IPersistentState<CounterPersistence> sheepState)
+	public CounterGrain(
+		[PersistentState("CounterState", "Basic")]
+		IPersistentState<CounterPersistence> sheepState,
+		[PersistentState("CounterSecondState", "Basic")]
+		IPersistentState<CounterSecondPersistence> counterSecondState)
 	{
-		_sheepState = sheepState;
+		_counterState = sheepState;
+		_counterSecondState = counterSecondState;
 	}
 
 	public async Task Increment()
 	{
-		_sheepState.State.Counter++;
-		await _sheepState.WriteStateAsync();
+		_counterState.State.Counter++;
+		await _counterState.WriteStateAsync();
+		_counterSecondState.State.JustAnotherGrain = GrainFactory.GetGrain<ICounterGrain>(this.GetPrimaryKeyString());
+		await _counterSecondState.WriteStateAsync();
 	}
 
-	public Task<int> GetCount()
+	public async Task<int> GetCount()
 	{
-		return Task.FromResult(_sheepState.State.Counter);
+		_counterSecondState.State.ReadOperations++;
+		await _counterSecondState.WriteStateAsync();
+		return _counterState.State.Counter;
+	}
+
+	public Task<ICounterGrain?> GetSavedReference()
+	{
+		return Task.FromResult(_counterSecondState.State.JustAnotherGrain);
 	}
 }
